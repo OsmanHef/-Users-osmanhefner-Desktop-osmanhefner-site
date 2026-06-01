@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog Admin · Osman Hefner</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper: #FFFFFF; --bone: #F4F2ED; --ink: #0B0B0B;
+  --ink-2: #3A3A38; --ink-3: #8A8782;
+  --noir: #0B0B0B; --gold: #B7975A; --gold-bright: #CBAE73;
+  --line: rgba(11,11,11,0.14);
+  --display: 'Archivo', system-ui, sans-serif;
+  --body: 'Inter', system-ui, sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--body); font-weight: 300; color: var(--ink); background: var(--paper); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* LOCK */
+#lock {
+  position: fixed; inset: 0; background: var(--noir);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+  z-index: 999;
+}
+.lock-logo { font-family: var(--display); font-size: 22px; font-weight: 900; letter-spacing: 0.04em; color: var(--paper); }
+.lock-logo span { color: var(--gold); }
+.lock-sub { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+#lock-form { display: flex; flex-direction: column; gap: 10px; width: 300px; }
+#lock-form input {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--paper); padding: 14px 16px;
+  font-family: var(--body); font-size: 15px; font-weight: 300;
+  letter-spacing: 0.15em; outline: none; transition: border-color 0.2s;
+}
+#lock-form input:focus { border-color: var(--gold); }
+#lock-form button {
+  background: var(--gold); color: var(--ink); border: none;
+  padding: 14px; font-family: var(--display); font-size: 11px;
+  font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
+  transition: background 0.2s;
+}
+#lock-form button:hover { background: var(--gold-bright); }
+#lock-error { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #e74c3c; text-align: center; display: none; }
+
+/* APP */
+#app { display: none; }
+
+header {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 56px;
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.h-logo { font-family: var(--display); font-size: 17px; font-weight: 900; letter-spacing: 0.04em; color: var(--ink); }
+.h-logo span { color: var(--gold); }
+.h-sub { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+.h-right { display: flex; gap: 12px; align-items: center; }
+
+.btn { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 10px 20px; cursor: pointer; border: 1px solid var(--line); background: none; color: var(--ink-2); text-decoration: none; transition: all 0.2s; display: inline-block; }
+.btn:hover { border-color: var(--ink); color: var(--ink); }
+.btn-gold { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.btn-gold:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+.btn-dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn-dark:hover { background: #333; }
+.btn-danger { color: #c0392b; border-color: rgba(192,57,43,0.3); }
+.btn-danger:hover { border-color: #c0392b; background: rgba(192,57,43,0.06); }
+
+main { max-width: 1000px; margin: 0 auto; padding: 48px 56px; }
+
+/* TABS */
+.tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+.tab { font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; background: none; border: none; border-bottom: 2px solid transparent; padding: 14px 20px; cursor: pointer; color: var(--ink-3); margin-bottom: -1px; transition: color 0.2s; }
+.tab.active { color: var(--ink); border-bottom-color: var(--gold); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* FORM */
+.field-label { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 10px; }
+.field-hint { font-size: 13px; color: var(--ink-3); margin-top: 8px; line-height: 1.6; }
+#html-input {
+  width: 100%; min-height: 300px;
+  background: var(--bone); border: 1px solid var(--line);
+  padding: 20px; font-family: 'Courier New', monospace;
+  font-size: 13px; line-height: 1.6; color: var(--ink);
+  resize: vertical; outline: none; transition: border-color 0.2s; margin-bottom: 8px;
+}
+#html-input:focus { border-color: var(--gold); }
+#html-input::placeholder { color: var(--ink-3); }
+.form-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 20px; }
+
+#preview-box { display: none; border: 1px solid var(--line); padding: 48px; margin-top: 24px; background: var(--paper); }
+#preview-box.show { display: block; }
+#preview-box h1 { font-family: var(--display); font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; line-height: 0.95; margin-bottom: 16px; }
+#preview-box .meta-desc { font-size: 16px; line-height: 1.7; color: var(--ink-2); border-left: 3px solid var(--gold); padding-left: 16px; margin-bottom: 32px; }
+#preview-box h2 { font-family: var(--display); font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; margin: 32px 0 12px; }
+#preview-box p { font-size: 16px; line-height: 1.85; color: var(--ink-2); margin-bottom: 16px; font-weight: 300; }
+#preview-box ul, #preview-box ol { margin: 8px 0 16px 24px; }
+#preview-box li { font-size: 16px; line-height: 1.7; color: var(--ink-2); margin-bottom: 6px; font-weight: 300; }
+#preview-box strong { font-weight: 600; color: var(--ink); }
+
+/* MANAGE */
+.list-header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 0; }
+.list-header h3 { font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+.list-header span { font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+.post-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.row-title { font-family: var(--display); font-size: 15px; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.row-meta { font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-top: 4px; }
+.row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.empty-manage { text-align: center; padding: 64px 0; }
+.empty-manage .sym { color: var(--gold); font-size: 24px; margin-bottom: 16px; }
+.empty-manage h3 { font-family: var(--display); font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 8px; }
+.empty-manage p { font-size: 14px; color: var(--ink-3); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--ink); color: var(--paper);
+  font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 14px 20px; opacity: 0; transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9999;
+  border-left: 3px solid var(--gold);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+  header { padding: 16px 24px; }
+  main { padding: 32px 24px; }
+  .post-row { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lock">
+  <div style="text-align:center">
+    <div class="lock-logo">OSMAN <span>HEFNER</span></div>
+    <div class="lock-sub" style="margin-top:6px">Blog Admin</div>
+  </div>
+  <div id="lock-form">
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" />
+    <button onclick="checkPw()">Enter</button>
+    <p id="lock-error">Incorrect password — try again</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div>
+      <div class="h-logo">OSMAN <span>HEFNER</span></div>
+      <div class="h-sub">Blog Admin</div>
+    </div>
+    <div class="h-right">
+      <a href="/blog/" target="_blank" class="btn">View blog →</a>
+      <button class="btn" onclick="logout()">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('new')">New Post</button>
+      <button class="tab" onclick="switchTab('manage')">Manage Posts</button>
+    </div>
+
+    <!-- NEW POST -->
+    <div class="panel active" id="panel-new">
+      <div style="margin-bottom:20px">
+        <label class="field-label" for="html-input">Paste HTML from blog generator</label>
+        <textarea id="html-input" placeholder="Paste the HTML here — starting with <h1>Your Post Title</h1>..."></textarea>
+        <p class="field-hint">Generate a post using the blog generator tool in Claude, copy the HTML output, and paste it above.</p>
+      </div>
+      <div class="form-row">
+        <div style="display:flex;gap:10px">
+          <button class="btn" onclick="previewPost()">Preview</button>
+          <button class="btn btn-gold" onclick="publishPost()">Publish Post →</button>
+        </div>
+        <button class="btn" onclick="clearForm()">Clear</button>
+      </div>
+      <div id="preview-box"></div>
+    </div>
+
+    <!-- MANAGE -->
+    <div class="panel" id="panel-manage">
+      <div id="manage-content"></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'oh_blog_posts';
+const PASS = 'compass2026';
+
+function checkPw() {
+  if (document.getElementById('pw').value === PASS) {
+    document.getElementById('lock').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderManage();
+  } else {
+    document.getElementById('lock-error').style.display = 'block';
+    document.getElementById('pw').value = '';
+    document.getElementById('pw').focus();
+  }
+}
+document.getElementById('pw').addEventListener('keydown', e => { if (e.key==='Enter') checkPw(); });
+
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('lock').style.display = 'flex';
+  document.getElementById('pw').value = '';
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', (i===0&&t==='new')||(i===1&&t==='manage')));
+  document.getElementById('panel-new').classList.toggle('active', t==='new');
+  document.getElementById('panel-manage').classList.toggle('active', t==='manage');
+  if (t==='manage') renderManage();
+}
+
+function getPosts() { try { return JSON.parse(localStorage.getItem(KEY))||[]; } catch { return []; } }
+function savePosts(p) { localStorage.setItem(KEY, JSON.stringify(p)); }
+
+function stripHtml(h) { const d=document.createElement('div'); d.innerHTML=h; return d.textContent||''; }
+function getTitle(h) { const m=h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i); return m?stripHtml(m[1]):'Untitled'; }
+function formatDate(iso) { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}); }
+function readTime(h) { return Math.max(1,Math.round(stripHtml(h).split(/\s+/).length/200))+' min read'; }
+
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function previewPost() {
+  const html=document.getElementById('html-input').value.trim();
+  const box=document.getElementById('preview-box');
+  if (!html) { toast('Paste some HTML first'); return; }
+  box.innerHTML=html; box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function publishPost() {
+  const html=document.getElementById('html-input').value.trim();
+  if (!html) { toast('Nothing to publish — paste HTML first'); return; }
+  const posts=getPosts();
+  posts.push({id:Date.now(), date:new Date().toISOString(), html});
+  savePosts(posts);
+  clearForm();
+  toast('✦ Post published');
+  switchTab('manage');
+}
+
+function clearForm() {
+  document.getElementById('html-input').value='';
+  const b=document.getElementById('preview-box');
+  b.innerHTML=''; b.classList.remove('show');
+}
+
+function renderManage() {
+  const posts=getPosts().sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const c=document.getElementById('manage-content');
+  if (!posts.length) {
+    c.innerHTML=`<div class="empty-manage"><div class="sym">✦</div><h3>No Posts Yet</h3><p>Head to the New Post tab to publish your first article.</p></div>`;
+    return;
+  }
+  c.innerHTML=`
+    <div class="list-header"><h3>Published Posts</h3><span>${posts.length} article${posts.length!==1?'s':''}</span></div>
+    ${posts.map((p,i)=>`
+      <div class="post-row">
+        <div style="flex:1;min-width:0">
+          <div class="row-title">${getTitle(p.html)}</div>
+          <div class="row-meta">${formatDate(p.date)} · ${readTime(p.html)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn" onclick="viewPost(${i})">View</button>
+          <button class="btn btn-danger" onclick="deletePost('${p.id}')">Delete</button>
+        </div>
+      </div>`).join('')}`;
+}
+
+function viewPost(i) {
+  const posts=getPosts().sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const p=posts[i];
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preview · ${getTitle(p.html)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      body{font-family:'Inter',sans-serif;font-weight:300;max-width:760px;margin:4rem auto;padding:0 2rem;background:#fff;color:#0B0B0B;}
+      h1{font-family:'Archivo',sans-serif;font-size:2.8rem;font-weight:900;text-transform:uppercase;letter-spacing:-0.04em;line-height:.95;margin-bottom:1rem;}
+      .meta-desc{font-size:1.05rem;line-height:1.7;color:#3A3A38;border-left:3px solid #B7975A;padding-left:1rem;margin-bottom:2.5rem;}
+      h2{font-family:'Archivo',sans-serif;font-size:1.4rem;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;margin:3rem 0 1rem;}
+      p{font-size:1.05rem;line-height:1.85;color:#3A3A38;margin-bottom:1.1rem;font-weight:300;}
+      ul,ol{margin:.5rem 0 1.1rem 1.5rem;}li{font-size:1.05rem;line-height:1.75;color:#3A3A38;margin-bottom:.4rem;font-weight:300;}
+      strong{font-weight:600;color:#0B0B0B;}
+    </style></head><body>${p.html}</body></html>`);
+  w.document.close();
+}
+
+function deletePost(id) {
+  if (!confirm('Delete this post? This cannot be undone.')) return;
+  savePosts(getPosts().filter(p=>String(p.id)!==String(id)));
+  renderManage();
+  toast('Post deleted');
+}
+</script>
+</body>
+</html>
